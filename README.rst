@@ -1,4 +1,4 @@
-gattools
-========
+genestation-py
+==============
 
-Tools for creating and processing Genome Annotation Table (GAT) files
+A python library for interaction with a Genestation style ElasticSearch instance

@@ -10,6 +10,7 @@ def main(arg):
 			print("{0}: {1}".format(handle.name,e), file=sys.stderr)
 
 def load(filename, descriptor):
+	# Validate descriptor
 	good = True
 	if "genus" not in descriptor:
 		print('{0}: Incomplete genome descriptor: missing "genus"'.format(filename), file=sys.stderr)

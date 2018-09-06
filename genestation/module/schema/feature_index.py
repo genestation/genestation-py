@@ -1,6 +1,40 @@
+FeatureIndexTemplate = {
+	"index_patterns" : ["feature.*"],
+	"template" : "feature.*",
+	"mappings": { "doc": {
+		"dynamic": False,
+		"properties": {
+			"genome": {"type": "keyword"},
+			"ftype": {"type": "keyword"},
+			"name": {"type": "keyword"},
+			"dbxref": {"type": "keyword"},
+			"region": {"type": "keyword"},
+			"locrange": {"type": "long_range"},
+			"child": {
+				"genome": {"type": "keyword"},
+				"ftype": {"type": "keyword"},
+				"name": {"type": "keyword"},
+				"dbxref": {"type": "keyword"},
+				"region": {"type": "keyword"},
+				"locrange": {"type": "long_range"},
+				"data": {"dynamic": True, "type": "object"},
+			},
+			"association": {
+				"genome": {"type": "keyword"},
+				"ftype": {"type": "keyword"},
+				"name": {"type": "keyword"},
+				"dbxref": {"type": "keyword"},
+				"region": {"type": "keyword"},
+				"locrange": {"type": "long_range"},
+				"data": {"dynamic": True, "type": "object"},
+			},
+			"data": {"dynamic": True, "type": "object"},
+		}
+	} }
+}
 
-Templates = {
-"association_query":
+FeatureSearchTemplate = {
+"feature.association_query":
 {"script": {
 	"lang": "mustache",
 	"source": {
@@ -18,13 +52,13 @@ Templates = {
 	}
 }},
 
-"field_buckets":
+"feature.field_buckets":
 {"script": {
 	"lang": "mustache",
 	"source": "{ \"aggs\": { \"field_buckets\": { \"range\": { \"field\" : \"{{field}}\", \"ranges\" : {{#toJson}}ranges{{/toJson}} }} }, \"size\": 0 }"
 }},
 
-"field_stats":
+"feature.field_stats":
 {"script": {
 	"lang": "mustache",
 	"source": {
@@ -36,7 +70,7 @@ Templates = {
 	}
 }},
 
-"filtered_range_query":
+"feature.filtered_range_query":
 {"script": {
 	"lang": "mustache",
 	"source": {
@@ -58,13 +92,13 @@ Templates = {
 	}
 }},
 
-"range_buckets":
+"feature.range_buckets":
 {"script": {
 	"lang": "mustache",
 	"source": "{ \"aggs\": { \"field_buckets\": { \"range\": { \"field\" : \"{{field}}\", \"ranges\" : {{#toJson}}ranges{{/toJson}} }} }, \"size\": 0, \"query\": { \"bool\" : { \"must\" : [{ \"range\": { \"_locrange\" : { \"gte\": \"{{start}}\", \"lt\": \"{{end}}\" } } }, { \"term\": {\"srcfeature\": \"{{srcfeature}}\"} }] } } }"
 }},
 
-"range_query":
+"feature.range_query":
 {"script": {
 	"lang": "mustache",
 	"source": {
@@ -85,7 +119,7 @@ Templates = {
 	}
 }},
 
-"range_stats":
+"feature.range_stats":
 {"script": {
 	"lang": "mustache",
 	"source": {
@@ -111,7 +145,7 @@ Templates = {
 	}
 }},
 
-"sorted_range_query":
+"feature.sorted_range_query":
 {"script": {
 	"lang": "mustache",
 	"source": {

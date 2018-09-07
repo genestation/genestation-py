@@ -3,7 +3,6 @@
 import sys
 import os.path
 import urllib
-from elasticsearch import Elasticsearch, RequestError
 from elasticsearch.helpers import bulk
 
 # GFF
@@ -19,7 +18,7 @@ class COLUMN:
 	ATTRIBUTES = 8
 #
 
-def load_gff(arg, genome, filename, descriptor_in):
+def load_gff(es, genome, filename, descriptor_in):
 	dirname = os.path.dirname(filename)
 	good = True
 	if not isinstance(descriptor_in, list):
@@ -155,10 +154,8 @@ def read_gff(gff, gff_file):
 	# Return features to load
 	return insert_features
 
-def elastic_gff(arg, genome, features):
+def elastic_gff(es, genome, features):
 	index_format = 'feature.{0}'.format(genome) + '.{0}'
-	# ElasticSearch
-	es = Elasticsearch(arg.host,timeout=600000)
 
 	#try:
 	#  es.indices.create(index=arg.index, body=mapping)

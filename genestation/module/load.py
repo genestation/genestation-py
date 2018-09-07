@@ -1,6 +1,13 @@
 import sys
 import json
 from module.file.gff import load_gff
+from elasticsearch import Elasticsearch
+
+# ElasticSearch
+es = Elasticsearch(arg.host,timeout=600000)
+# Test connection
+if es.ping() is False:
+	print("Cannot access ElasticSearch at", arg.host)
 
 def main(arg):
 	for handle in arg.descriptor:
@@ -32,5 +39,5 @@ def load(filename, descriptor):
 	print("Genome:",genome)
 	# Read GFF
 	if "gff" in descriptor:
-		load_gff(arg, genome, filename, descriptor["gff"])
+		load_gff(es, genome, filename, descriptor["gff"])
 

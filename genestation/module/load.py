@@ -1,5 +1,6 @@
 import sys
 import json
+from module.file.gff import load_gff
 
 def main(arg):
 	for handle in arg.descriptor:
@@ -29,3 +30,7 @@ def load(filename, descriptor):
 	genome = "_".join(organism).lower().replace(".","_").replace(" ","_") \
 	  + "." + descriptor["version"].lower().replace(".","_").replace(" ","_")
 	print("Genome:",genome)
+	# Read GFF
+	if "gff" in descriptor:
+		load_gff(arg, genome, filename, descriptor["gff"])
+

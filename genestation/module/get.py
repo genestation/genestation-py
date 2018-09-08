@@ -1,14 +1,7 @@
 import sys
 import json
-from elasticsearch import Elasticsearch
 
-def main(arg):
-	# ElasticSearch
-	es = Elasticsearch(arg.host,timeout=600000)
-	# Test connection
-	if es.ping() is False:
-		print("Cannot access ElasticSearch at", arg.host)
-
+def main(arg, es):
 	if not es.indices.exists(index=arg.index):
 		print("Index does not exist: {0}".format(arg.index), file=sys.stderr)
 		return

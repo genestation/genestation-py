@@ -1,15 +1,8 @@
 import sys
 import json
 from module.file.gff import load_gff
-from elasticsearch import Elasticsearch
 
-def main(arg):
-	# ElasticSearch
-	es = Elasticsearch(arg.host,timeout=600000)
-	# Test connection
-	if es.ping() is False:
-		print("Cannot access ElasticSearch at", arg.host)
-
+def main(arg, es):
 	for handle in arg.descriptor:
 		try:
 			descriptor = json.load(handle)

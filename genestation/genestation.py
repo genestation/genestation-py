@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+from elasticsearch import Elasticsearch
 
 PROG='genestation'
 VERSION="0.0.1"
@@ -38,16 +39,27 @@ arg = parser.parse_args()
 if arg.host is None:
 	arg.host = ['localhost:9200']
 
-# Main
+# Test connection
+es = Elasticsearch(arg.host,timeout=600000)
+if es.ping() is False:
+	print("Cannot access ElasticSearch at", arg.host)
+	exit(1)
+# ElaticSearch initialization
 if arg.command == "init":
 	from module.init import main
-	main(arg)
-elif arg.command == "load":
+	main(arg, es)
+	exit(0)
+if not es.indices.exists(index='genome'):
+	print("Genome Index is not initialized", file=sys.stderr)
+	exit(1)
+
+# Main
+if arg.command == "load":
 	from module.load import main
-	main(arg)
+	main(arg, es)
 elif arg.command == "get":
 	from module.get import main
-	main(arg)
+	main(arg, es)
 elif arg.command == "genome":
 	from module.genome import main
-	main(arg)
+	main(arg, es)

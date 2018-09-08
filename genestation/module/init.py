@@ -1,14 +1,8 @@
-from elasticsearch import Elasticsearch
 from module.schema.genome_index import GenomeIndex
 from module.schema.feature_index import FeatureIndexTemplate, FeatureSearchTemplate
 
-def main(arg):
+def main(arg, es):
 	print("Initializing ElasticSearch cluster")
-	es = Elasticsearch(hosts=arg.host)
-	# Test connection
-	if es.ping() is False:
-		print("Cannot access ElasticSearch at", arg.host)
-		return
 	# Create genome index
 	if es.indices.exists(index="genome"):
 		print("Genome Index already exists, skipping")

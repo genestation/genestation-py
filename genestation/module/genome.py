@@ -1,14 +1,7 @@
 import sys
-from elasticsearch import Elasticsearch
 from elasticsearch.helpers import scan
 
-def main(arg):
-	# ElasticSearch
-	es = Elasticsearch(arg.host,timeout=600000)
-	# Test connection
-	if es.ping() is False:
-		print("Cannot access ElasticSearch at", arg.host)
-
+def main(arg, es):
 	if arg.subcommand == "show":
 		show(es, arg.genome)
 	else:

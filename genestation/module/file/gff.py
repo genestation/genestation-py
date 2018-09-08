@@ -2,8 +2,14 @@
 
 import sys
 import os.path
-import urllib
+from urllib.parse import unquote as url_unquote
 from elasticsearch.helpers import bulk
+
+# Python <3.5 workaround
+def merge_two_dicts(x,y):
+	z = x.copy()
+	z.update(y)
+	return z
 
 # GFF
 class COLUMN:
@@ -23,7 +29,7 @@ def load_gff(es, genome, filename, descriptor_in):
 	good = True
 	if not isinstance(descriptor_in, list):
 		descriptor_list = [descriptor_in]
-	else
+	else:
 		descriptor_list = descriptor_in
 	for descriptor in descriptor_list:
 		gff = {
@@ -34,12 +40,15 @@ def load_gff(es, genome, filename, descriptor_in):
 			"data_attr": {},
 		}
 		if isinstance(descriptor, str):
-			gff["file"] = descriptor
+			gff["file"] = [descriptor]
 		elif isinstance(descriptor, dict):
-			gff = {**gff, **descriptor}
+			#gff = {**gff, **descriptor}
+			gff = merge_two_dicts(gff, descriptor)
 		else:
 			print('{0}: "gff" field is malformed'.format(filename), file=sys.stderr)
 			good = False
+		if isinstance(gff["file"], str):
+			gff["file"] = [gff["file"]]
 		if not good:
 			return
 		for gff_name in gff["file"]:
@@ -48,7 +57,7 @@ def load_gff(es, genome, filename, descriptor_in):
 				with open(gff_path) as gff_file:
 					print("Reading {0}".format(gff_path))
 					features = read_gff(gff, gff_file)
-					elastic_gff(arg, genome, features)
+					elastic_gff(es, genome, features)
 			except IOError:
 				print('{0}: cannot find GFF "{1}"'.format(filename,gff_path), file=sys.stderr)
 
@@ -74,7 +83,7 @@ def read_gff(gff, gff_file):
 		line = line.rstrip().split('\t')
 		if len(line) < 9:
 			raise Exception('GFF column error: line {}'.format(lineno))
-		attributes = {keyval[0]: map(lambda value: urllib.unquote(value), keyval[1].split(','))
+		attributes = {keyval[0]: list(map(lambda value: url_unquote(value), keyval[1].split(',')))
 			for keyval in
 			map(lambda itr: itr.split('='), line[COLUMN.ATTRIBUTES].split(';'))}
 
@@ -124,15 +133,17 @@ def read_gff(gff, gff_file):
 
 		# Storing doc
 		if gffid in feature:
-			feature[gffid] = {**feature[gffid], **doc}
+			#feature[gffid] = {**feature[gffid], **doc}
+			feature[gffid] = merge_two_dicts(feature[gffid], doc)
 			if loc['start'] < feature[gffid]['start']:
 				feature[gffid]['locrange']['gte'] = loc['start']
 				feature[gffid]['start'] = loc['start']
 			if loc['end'] > feature[gffid]['end']:
 				feature[gffid]['locrange']['lt'] = loc['end']
 				feature[gffid]['end'] = loc['end']
-			feature[gffid]['data'] = {**feature[gffid]['data'], **data}
-			doc['loc'].append(loc)
+			feature[gffid]['loc'].append(loc)
+			#feature[gffid]['data'] = {**feature[gffid]['data'], **data}
+			feature[gffid]['data'] = merge_two_dicts(feature[gffid]['data'], data)
 		else:
 			doc['locrange'] = {
 				'gte': loc['start'],
@@ -149,45 +160,21 @@ def read_gff(gff, gff_file):
 					feature[parent]['child'] = []
 				feature[parent]['child'].append(doc)
 			if ftype in insert_ftype and 'name' in doc:
-				insert_features.append(feature[gff_id])
+				insert_features.append(feature[gffid])
 
 	# Return features to load
 	return insert_features
 
 def elastic_gff(es, genome, features):
+	print('Loading features', flush=True)
 	index_format = 'feature.{0}'.format(genome) + '.{0}'
-
-	#try:
-	#  es.indices.create(index=arg.index, body=mapping)
-	#except RequestError:
-	#  print('Skipping index creation')
-	#sys.stdout.flush()
-
-	count = len(features)
-	cycle = 8192
-	curr = 0
-	bulk_data = []
-	def process_buffer(eof=False):
-		global curr
-		global bulk_data
-		if not eof:
-			curr += 1
-		if curr%cycle == 0 or eof:
-			response = bulk(es,
-			  actions=bulk_data,
-			)
-		print(curr/count,response)
-		sys.stdout.flush()
-		bulk_data = []
-	for doc in feature.items():
-		# Add doc to buffer
-		bulk_data.append({
-			'_index': index_format.format(doc['ftype']),
-			'_type': 'doc',
-			'_id': doc['name'],
-			'_source': doc,
-		})
-	  # (per cycle) Bulk index buffer
-	  process_buffer()
-	# loop end, process remaining buffer
-	process_buffer(True)
+	def gendata():
+		for doc in features:
+			yield {
+				'_index': index_format.format(doc['ftype']),
+				'_type': 'doc',
+				'_id': doc['name'],
+				'_source': doc,
+			}
+	response = bulk(es, gendata())
+	print(response)

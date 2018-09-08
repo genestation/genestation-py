@@ -14,20 +14,20 @@ parser.add_argument('--host', action='append',
 subparsers = parser.add_subparsers(
 	title='commands', dest='command')
 
-# init command parser
+# init command
 parser_init = subparsers.add_parser('init', description='initialize a new genestation instance')
 
-# load command parser
-parser_load = subparsers.add_parser('load', description='load genomic data into a genestation instance')
+# load command
+parser_load = subparsers.add_parser('load', description='load genomic data')
 parser_load.add_argument('descriptor', nargs='+', type=argparse.FileType('r'),
 	help='Genomic Data Descriptor JSON')
 
-# get command parser
-parser_get = subparsers.add_parser('get', description='get genomic data from a genestation instance')
+# get command
+parser_get = subparsers.add_parser('get', description='get genomic data')
 parser_get.add_argument('index', help='ElasticSearch index')
 parser_get.add_argument('id', help='Document ID')
 
-# genome command parser
+# genome command
 parser_genome = subparsers.add_parser('genome', description='manage genomes')
 subparsers_genome = parser_genome.add_subparsers(title='subcommands', dest='subcommand')
 parser_genome_show = subparsers_genome.add_parser('show', description='show genome')

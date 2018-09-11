@@ -31,7 +31,7 @@ def make_stats(es, index):
 	stats_index = "stats.{0}".format(index)
 	resp = es.indices.get_mapping(index=index)
 	# Determine numeric fields
-	numeric = set()
+	numeric = []
 	numeric_types = set(['long','integer','short','byte','double','float','half_float','scaled_float'])
 	for name in resp:
 		mappings = resp[name]['mappings']
@@ -47,14 +47,14 @@ def make_stats(es, index):
 						path_stack.append('.'.join([path,key]))
 				elif 'type' in ptr:
 					if ptr['type'] in numeric_types:
-						numeric.add(path)
+						numeric.append([path, ptr['type']])
 					else:
 						es.index(index=stats_index, doc_type="doc", id=path, body={
 							'field': path,
 							'type': ptr['type'],
 						})
 	# Calculate stats
-	for field in numeric:
+	for field, field_type in numeric:
 		field = field[1:]
 		print("Calculating stats for field '{0}'".format(field))
 		resp = es.search_template(index=index, body={
@@ -79,6 +79,7 @@ def make_stats(es, index):
 			buckets[len(buckets)-1]['to'] = stats['nice_max']
 			stats['histogram'] = buckets
 		stats['field'] = field
+		stats['type'] = field_type
 		es.index(index=stats_index, doc_type="doc", id=field, body=stats)
 
 def makeHistogramBuckets(fmin, fmax, numBuckets):

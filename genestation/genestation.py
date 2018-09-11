@@ -3,6 +3,11 @@
 import argparse
 from elasticsearch import Elasticsearch
 
+#import logging
+#logging.basicConfig()
+#logging.getLogger('elasticsearch').setLevel(logging.DEBUG)
+#logging.getLogger('urllib3').setLevel(logging.DEBUG)
+
 PROG='genestation'
 VERSION="0.0.1"
 
@@ -22,6 +27,14 @@ parser_init = subparsers.add_parser('init', description='initialize a new genest
 parser_load = subparsers.add_parser('load', description='load genomic data')
 parser_load.add_argument('descriptor', nargs='+', type=argparse.FileType('r'),
 	help='Genomic Data Descriptor JSON')
+
+# index command
+parser_index = subparsers.add_parser('index', description='work with indices')
+subparsers_index = parser_index.add_subparsers(title='subcommands', dest='subcommand')
+parser_index_show = subparsers_index.add_parser('show', description='show metadata about the index')
+parser_index_show.add_argument('index', help='index to show')
+parser_index_makestats = subparsers_index.add_parser('make-stats', description='(re)create stats index')
+parser_index_makestats.add_argument('index', help='index to stat')
 
 # get command
 parser_get = subparsers.add_parser('get', description='get genomic data')
@@ -56,6 +69,9 @@ if not es.indices.exists(index='genome'):
 # Main
 if arg.command == "load":
 	from module.load import main
+	main(arg, es)
+elif arg.command == "index":
+	from module.index import main
 	main(arg, es)
 elif arg.command == "get":
 	from module.get import main

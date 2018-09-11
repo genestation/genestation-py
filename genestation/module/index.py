@@ -46,16 +46,16 @@ def make_stats(es, index):
 						stack.append(properties[key])
 						path_stack.append('.'.join([path,key]))
 				elif 'type' in ptr:
+					field = path[1:]
 					if ptr['type'] in numeric_types:
-						numeric.append([path, ptr['type']])
+						numeric.append([field, ptr['type']])
 					else:
 						es.index(index=stats_index, doc_type="doc", id=path, body={
-							'field': path,
+							'field': field,
 							'type': ptr['type'],
 						})
 	# Calculate stats
 	for field, field_type in numeric:
-		field = field[1:]
 		print("Calculating stats for field '{0}'".format(field))
 		resp = es.search_template(index=index, body={
 			'id': 'stats.field_stats',

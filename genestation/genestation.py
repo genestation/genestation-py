@@ -41,6 +41,11 @@ parser_get = subparsers.add_parser('get', description='get genomic data')
 parser_get.add_argument('index', help='ElasticSearch index')
 parser_get.add_argument('id', help='Document ID')
 
+# search command
+parser_search = subparsers.add_parser('search', description='search genomic data')
+parser_search.add_argument('index', help='ElasticSearch index')
+parser_search.add_argument('query', help='search query')
+
 # genome command
 parser_genome = subparsers.add_parser('genome', description='manage genomes')
 subparsers_genome = parser_genome.add_subparsers(title='subcommands', dest='subcommand')
@@ -75,6 +80,9 @@ elif arg.command == "index":
 	main(arg, es)
 elif arg.command == "get":
 	from module.get import main
+	main(arg, es)
+elif arg.command == "search":
+	from module.search import main
 	main(arg, es)
 elif arg.command == "genome":
 	from module.genome import main

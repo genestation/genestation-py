@@ -5,6 +5,7 @@ StatsIndexTemplate = {
 		"dynamic": False,
 		"properties": {
 			"field": {"type": "keyword"},
+			"type": {"type": "keyword"},
 			"count": {"type": "long"},
 			"min": {"type": "double"},
 			"max": {"type": "double"},

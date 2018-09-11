@@ -40,13 +40,19 @@ def make_stats(es, index):
 			while stack:
 				ptr = stack.pop()
 				path = path_stack.pop()
-				if 'type' in ptr and ptr['type'] in numeric_types:
-					numeric.add(path)
 				if 'properties' in ptr:
 					properties = ptr['properties']
 					for key in properties:
 						stack.append(properties[key])
 						path_stack.append('.'.join([path,key]))
+				elif 'type' in ptr:
+					if ptr['type'] in numeric_types:
+						numeric.add(path)
+					else:
+						es.index(index=stats_index, doc_type="doc", id=path, body={
+							'field': path,
+							'type': ptr['type'],
+						})
 	# Calculate stats
 	for field in numeric:
 		field = field[1:]

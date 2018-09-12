@@ -64,19 +64,16 @@ def make_stats(es, index):
 		stats = resp['aggregations']['field_stats'];
 		stats['percentiles'] = resp['aggregations']['field_percentiles']['values'];
 		if stats['min'] is not None and stats['max'] is not None and stats['min'] != stats['max']:
-			nice_domain = linear_nice([stats['min'],stats['max']],4)
-			stats['nice_min'] = nice_domain[0]
-			stats['nice_max'] = nice_domain[1]
 			resp = es.search_template(index=index, body={
 				'id': 'stats.field_buckets',
 				'params': {
 					'field': field,
-					'ranges': makeHistogramBuckets(stats['nice_min'], stats['nice_max'], 100)
+					'ranges': makeHistogramBuckets(stats['min'], stats['max'], 100)
 				},
 			})
 			buckets = resp['aggregations']['field_buckets']['buckets']
-			buckets[0]['from'] = stats['nice_min']
-			buckets[len(buckets)-1]['to'] = stats['nice_max']
+			buckets[0]['from'] = stats['min']
+			buckets[len(buckets)-1]['to'] = stats['max']
 			stats['histogram'] = buckets
 		stats['field'] = field
 		stats['type'] = field_type

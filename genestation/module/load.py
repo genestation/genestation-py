@@ -1,6 +1,7 @@
 import sys
 import json
 from module.file.gff import load_gff
+from module.file.vcf import load_vcf
 
 def main(arg, es):
 	for handle in arg.descriptor:
@@ -40,4 +41,6 @@ def load(es, filename, descriptor):
 	# Read GFF
 	if "gff" in descriptor:
 		load_gff(es, genome, filename, descriptor["gff"])
+	if "vcf" in descriptor:
+		load_vcf(es, genome, filename, descriptor["vcf"])
 

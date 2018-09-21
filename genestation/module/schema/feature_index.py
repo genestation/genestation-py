@@ -10,7 +10,7 @@ FeatureIndexTemplate = {
 			"dbxref": {"type": "keyword"},
 			"region": {"type": "keyword"},
 			"locrange": {"type": "long_range"},
-			"child": {
+			"child": { "properties": {
 				"genome": {"type": "keyword"},
 				"ftype": {"type": "keyword"},
 				"name": {"type": "keyword"},
@@ -18,8 +18,8 @@ FeatureIndexTemplate = {
 				"region": {"type": "keyword"},
 				"locrange": {"type": "long_range"},
 				"data": {"dynamic": True, "type": "object"},
-			},
-			"association": {
+			}},
+			"association": { "properties": {
 				"genome": {"type": "keyword"},
 				"ftype": {"type": "keyword"},
 				"name": {"type": "keyword"},
@@ -27,8 +27,18 @@ FeatureIndexTemplate = {
 				"region": {"type": "keyword"},
 				"locrange": {"type": "long_range"},
 				"data": {"dynamic": True, "type": "object"},
-			},
+			}},
 			"data": {"dynamic": True, "type": "object"},
+			"variant": { "properties": {
+				"ref": { "properties": {
+					"base": { "type": "text" },
+				}},
+				"alt": {
+					"type": "nested",
+					"properties": {
+						"base": { "type": "text" },
+				}},
+			}},
 		}
 	} }
 }

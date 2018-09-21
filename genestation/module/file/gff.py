@@ -64,8 +64,8 @@ def load_gff(es, genome, filename, descriptor_in):
 def read_gff(gff, gff_file):
 	insert_ftype = gff["ftype"]
 	seqid_alias = gff["seqid_alias"]
-	alias_attr = gff["alias_attr"]
-	dbxref_attr = gff["dbxref_attr"]
+	alias_attr = gff["alias_attr"] #TODO
+	dbxref_attr = gff["dbxref_attr"] #TODO
 	data_attr = gff["data_attr"]
 
 	feature = {}

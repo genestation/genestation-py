@@ -6,8 +6,8 @@ from module.helper.d3 import linear_nice
 def main(arg, es):
 	if arg.subcommand == "show":
 		show(es, arg.index)
-	elif arg.subcommand == "make-stats":
-		make_stats(es, arg.index)
+	elif arg.subcommand == "make-meta":
+		make_meta(es, arg.index)
 	else:
 		list_indexes(es)
 
@@ -24,11 +24,11 @@ def show(es, index):
 	resp = es.indices.get(index=index)
 	print(json.dumps(resp, indent='  '))
 
-def make_stats(es, index):
+def make_meta(es, index):
 	if not es.indices.exists(index=index):
 		print("Index does not exist: {0}".format(index), file=sys.stderr)
 		return
-	stats_index = "stats.{0}".format(index)
+	meta_index = "meta.{0}".format(index)
 	resp = es.indices.get_mapping(index=index)
 	# Determine numeric fields
 	numeric = []
@@ -50,7 +50,7 @@ def make_stats(es, index):
 					if ptr['type'] in numeric_types:
 						numeric.append([field, ptr['type']])
 					else:
-						es.index(index=stats_index, doc_type="doc", id=path, body={
+						es.index(index=meta_index, doc_type="doc", id=path, body={
 							'field': field,
 							'type': ptr['type'],
 						})
@@ -58,14 +58,14 @@ def make_stats(es, index):
 	for field, field_type in numeric:
 		print("Calculating stats for field '{0}'".format(field))
 		resp = es.search_template(index=index, body={
-			'id': 'stats.field_stats',
+			'id': 'meta.field_stats',
 			'params': {'field': field},
 		})
 		stats = resp['aggregations']['field_stats'];
 		stats['percentiles'] = resp['aggregations']['field_percentiles']['values'];
 		if stats['min'] is not None and stats['max'] is not None and stats['min'] != stats['max']:
 			resp = es.search_template(index=index, body={
-				'id': 'stats.field_buckets',
+				'id': 'meta.field_buckets',
 				'params': {
 					'field': field,
 					'ranges': makeHistogramBuckets(stats['min'], stats['max'], 100)
@@ -75,9 +75,11 @@ def make_stats(es, index):
 			buckets[0]['from'] = stats['min']
 			buckets[len(buckets)-1]['to'] = stats['max']
 			stats['histogram'] = buckets
-		stats['field'] = field
-		stats['type'] = field_type
-		es.index(index=stats_index, doc_type="doc", id=field, body=stats)
+		meta = {}
+		meta['field'] = field
+		meta['type'] = field_type
+		meta['stats'] = stats
+		es.index(index=meta_index, doc_type="doc", id=field, body=meta)
 
 def makeHistogramBuckets(fmin, fmax, numBuckets):
 	interval = (fmax - fmin) / numBuckets

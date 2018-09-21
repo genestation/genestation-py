@@ -1,6 +1,6 @@
 from module.schema.genome_index import GenomeIndex
 from module.schema.feature_index import FeatureIndexTemplate, FeatureSearchTemplate
-from module.schema.stats_index import StatsIndexTemplate, StatsSearchTemplate
+from module.schema.meta_index import MetaIndexTemplate, MetaSearchTemplate
 
 def main(arg, es):
 	print("Initializing ElasticSearch cluster")
@@ -22,13 +22,13 @@ def main(arg, es):
 		print("-",key)
 		es.put_script(id=key, body=value, lang="mustache")
 	# Create stats index template
-	if es.indices.exists_template(name="stats"):
-		print("Stats Index Template already exists, skipping")
+	if es.indices.exists_template(name="meta"):
+		print("Meta Index Template already exists, skipping")
 	else:
-		print("Putting Stats Index Template")
-		es.indices.put_template(name="stats", body=StatsIndexTemplate)
+		print("Putting Meta Index Template")
+		es.indices.put_template(name="meta", body=MetaIndexTemplate)
 	# Create stats search templates
-	print("Putting Stats Index search template scripts")
-	for key, value in StatsSearchTemplate.items():
+	print("Putting Meta Index search template scripts")
+	for key, value in MetaSearchTemplate.items():
 		print("-",key)
 		es.put_script(id=key, body=value, lang="mustache")

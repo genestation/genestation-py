@@ -33,8 +33,8 @@ parser_index = subparsers.add_parser('index', description='work with indices')
 subparsers_index = parser_index.add_subparsers(title='subcommands', dest='subcommand')
 parser_index_show = subparsers_index.add_parser('show', description='show metadata about the index')
 parser_index_show.add_argument('index', help='index to show')
-parser_index_makestats = subparsers_index.add_parser('make-stats', description='(re)create stats index')
-parser_index_makestats.add_argument('index', help='index to stat')
+parser_index_makemeta = subparsers_index.add_parser('make-meta', description='(re)create meta index')
+parser_index_makemeta.add_argument('index', help='index to generate a meta index for')
 
 # get command
 parser_get = subparsers.add_parser('get', description='get genomic data')

@@ -141,6 +141,7 @@ def read_tsjv(genome, tsjv, tsjv_file):
 					association_data[colname] = json.loads(line[association_data_idx])
 				association['data'] = association_data
 				docs[name]['association'].append(association)
+	print('Loading features', flush=True)
 	for name, doc in docs.items():
 		script = ''
 		params = {}

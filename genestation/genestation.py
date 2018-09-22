@@ -43,8 +43,14 @@ parser_get.add_argument('id', help='Document ID')
 
 # search command
 parser_search = subparsers.add_parser('search', description='search genomic data')
+parser_search.add_argument('--doc-type', action='append',
+	help='Search within an index type (DEPRECATED)')
+parser_search.add_argument('--source', action='append',
+	help='retieve source fields')
+parser_search.add_argument('--source-all', action='store_true',
+	help='fetch all source fields')
 parser_search.add_argument('index', help='ElasticSearch index')
-parser_search.add_argument('query', help='search query')
+parser_search.add_argument('query', nargs='?', default=None, help='search query')
 
 # genome command
 parser_genome = subparsers.add_parser('genome', description='manage genomes')

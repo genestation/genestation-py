@@ -12,9 +12,16 @@ def main(arg, es):
 		'_source': True if arg.source_all else arg.source if arg.source else False,
 		'query': { 'query_string': { 'query': arg.query }} if arg.query else { 'match_all': {}},
 	})
+	if arg.raw:
+		print('[', end=None)
+		first = True
 	for hit in itr:
 		if arg.raw:
-			print(json.dumps(hit))
+			if first:
+				first = False
+			else:
+				print(',', end=None)
+			print(json.dumps(hit), end=None)
 		elif '_source' in hit:
 			if arg.pretty:
 				print('{0}\t{1}\n{2}\n'.format(hit['_index'], hit['_id'], json.dumps(hit['_source'], indent='  ')))
@@ -22,3 +29,5 @@ def main(arg, es):
 				print('{0}\t{1}\t{2}'.format(hit['_index'], hit['_id'], json.dumps(hit['_source'])))
 		else:
 			print('{0}\t{1}'.format(hit['_index'], hit['_id']))
+	if arg.raw:
+		print(']', end=None)

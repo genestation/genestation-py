@@ -174,10 +174,12 @@ def elastic_gff(es, genome, features):
 	def gendata():
 		for doc in features:
 			yield {
+				'_op_type': 'update',
 				'_index': index_format.format(doc['ftype']),
 				'_type': 'doc',
 				'_id': doc['name'],
-				'_source': doc,
+				'doc': doc,
+				'doc_as_upsert': True,
 			}
 	response = bulk(es, gendata())
 	print(response)

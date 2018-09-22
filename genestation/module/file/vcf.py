@@ -56,8 +56,9 @@ def read_vcf(genome, vcf, vcf_path):
 			if isinstance(val,tuple)
 		}
 		doc = {
-			'name': record.id,
+			'genome': genome,
 			'ftype': 'sequence_alteration',
+			'name': record.id,
 			'region': record.contig,
 			'start': record.pos - 1,
 			'end': record.pos - 1 + len(record.ref),

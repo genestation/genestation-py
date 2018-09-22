@@ -56,12 +56,12 @@ def load_gff(es, genome, filename, descriptor_in):
 			try:
 				with open(gff_path) as gff_file:
 					print("Reading {0}".format(gff_path))
-					features = read_gff(gff, gff_file)
+					features = read_gff(genome, gff, gff_file)
 					elastic_gff(es, genome, features)
 			except IOError:
 				print('{0}: cannot find GFF "{1}"'.format(filename,gff_path), file=sys.stderr)
 
-def read_gff(gff, gff_file):
+def read_gff(genome, gff, gff_file):
 	insert_ftype = gff["ftype"]
 	seqid_alias = gff["seqid_alias"]
 	alias_attr = gff["alias_attr"] #TODO
@@ -89,6 +89,7 @@ def read_gff(gff, gff_file):
 
 		ftype = line[COLUMN.TYPE]
 		doc = {
+			'genome': genome,
 			'ftype': ftype,
 			'region': seqid_alias[line[COLUMN.SEQID]] if line[COLUMN.SEQID] in seqid_alias else line[COLUMN.SEQID],
 			'start': int(line[COLUMN.START]) - 1,

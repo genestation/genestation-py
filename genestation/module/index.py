@@ -14,7 +14,7 @@ def main(arg, es):
 def list_indexes(es):
 	resp = es.indices.get_alias("*")
 	if resp:
-		for key in resp:
+		for key in sorted(resp.keys()):
 			print('{0}:\t{1}'.format(key,es.count(index=key)['count']))
 
 def show(es, index):

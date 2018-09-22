@@ -13,7 +13,12 @@ def main(arg, es):
 		'query': { 'query_string': { 'query': arg.query }} if arg.query else { 'match_all': {}},
 	})
 	for hit in itr:
-		if '_source' in hit:
-			print('{0}\t{1}\t{2}'.format(hit['_index'], hit['_id'], json.dumps(hit['_source'])))
+		if arg.raw:
+			print(json.dumps(hit))
+		elif '_source' in hit:
+			if arg.pretty:
+				print('{0}\t{1}\n{2}\n'.format(hit['_index'], hit['_id'], json.dumps(hit['_source'], indent='  ')))
+			else:
+				print('{0}\t{1}\t{2}'.format(hit['_index'], hit['_id'], json.dumps(hit['_source'])))
 		else:
 			print('{0}\t{1}'.format(hit['_index'], hit['_id']))

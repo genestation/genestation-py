@@ -49,6 +49,10 @@ parser_search.add_argument('--source', action='append',
 	help='retieve source fields')
 parser_search.add_argument('--source-all', action='store_true',
 	help='fetch all source fields')
+parser_search.add_argument('--raw', action='store_true',
+	help='show raw hit data')
+parser_search.add_argument('--pretty', action='store_true',
+	help='pretty print output')
 parser_search.add_argument('index', help='ElasticSearch index')
 parser_search.add_argument('query', nargs='?', default=None, help='search query')
 

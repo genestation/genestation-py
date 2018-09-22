@@ -4,6 +4,9 @@
 	"version": "GRch38.p12",
 	"gff": {
 		"file": "data/ref_GRCh38_top_level.gff3",
+		"data_attr": {
+			"description": "description",
+		},
 		"seqid_alias": {
 			"NC_000001.11": "1",
 			"NC_000002.12": "2",

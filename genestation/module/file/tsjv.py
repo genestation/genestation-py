@@ -124,7 +124,7 @@ def read_tsjv(genome, tsjv, tsjv_file):
 					#	docs[name]['data'][colname] = []
 					#docs[name]['data'][colname].append(json.loads(line[data_idx]))
 			# Association fields TODO nesting
-			if association_idxs is not None:
+			if association_idxs is not None and len(association_idxs) > 0:
 				if 'association' not in docs[name]:
 					docs[name]['association'] = []
 				association_names = [json.loads(line[idx]) for idx in association_idxs]
@@ -142,17 +142,21 @@ def read_tsjv(genome, tsjv, tsjv_file):
 				association['data'] = association_data
 				docs[name]['association'].append(association)
 	print('Loading features', flush=True)
+	script = ''
+	if data_cols is not None:
+		for key in data_cols:
+			datakey = 'data.{0}'.format(key)
+			script += 'ctx._source.data.{0} = params.{1};'.format(key,datakey)
+	if association_idxs is not None and len(association_idxs) > 0:
+		script += "if(ctx._source.association != null) { ctx._source.association.add(params.association) } else { ctx._source.association = params.association }"
 	for name, doc in docs.items():
-		script = ''
 		params = {}
 		if 'data' in doc:
 			for key in doc['data']:
 				datakey = 'data.{0}'.format(key)
-				script += 'ctx._source.data.{0} = params.{1};'.format(key,datakey)
-				params[datakey] = json.dumps(doc['data'][key])
+				params[datakey] = doc['data'][key]
 		if 'association' in doc:
-			script += 'ctx._source.association.add(params.association);'
-			params['association'] = json.dumps(doc['association'])
+			params['association'] = doc['association']
 		yield {
 			'_op_type': 'update',
 			'_index': index_format.format(doc['ftype']),
@@ -161,6 +165,7 @@ def read_tsjv(genome, tsjv, tsjv_file):
 			'script': {
 				'source': script,
 				'lang': 'painless',
+				'params': params,
 			},
 			'upsert': doc,
 		}

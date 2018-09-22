@@ -1,0 +1,18 @@
+{
+	"genus": "Homo",
+	"species": "sapiens",
+	"version": "GRch38.p12",
+	"tsjv": [{
+		"file": "data/enhancer_tss_associations.tsjv",
+		"ftype": "enhancer",
+		"start_col": "start",
+		"end_col": "end",
+		"association_cols": [
+			"fantom5.gene"
+		],
+		"association_data_cols": [
+			"fantom5.rsq",
+			"fantom5.fdr"
+		]
+	}]
+}

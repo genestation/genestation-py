@@ -1,0 +1,59 @@
+{
+	"genus": "Homo",
+	"species": "sapiens",
+	"version": "GRch38.p12",
+	"tsjv": [{
+		"file": "data/gwas-catalog.tsjv",
+		"ftype": "sequence_alteration",
+		"association_cols": [
+			"gwas.reported_gene",
+			"gwas.mapped_gene"
+		],
+		"association_data_cols": [
+			"gwas.pub.catalog_date",
+			"gwas.pub.id",
+			"gwas.pub.author",
+			"gwas.pub.date",
+			"gwas.pub.journal",
+			"gwas.pub.url",
+			"gwas.pub.study",
+			"gwas.description",
+			"gwas.trait",
+			"gwas.initial_sample_size",
+			"gwas.replication_sample_size",
+			"gwas.platform.name",
+			"gwas.platform.snps_passing_qc",
+			"gwas.platform.imputed",
+			"gwas.reported_gene",
+			"gwas.mapped_gene",
+			"gwas.upstream_gene_id",
+			"gwas.downstream_gene_id",
+			"gwas.upstream_gene_distance",
+			"gwas.downstream_gene_distance",
+			"gwas.strongest_snp_risk_allele",
+			"gwas.risk_allele.frequency.min",
+			"gwas.risk_allele.frequency.max",
+			"gwas.risk_allele.text",
+			"gwas.pval",
+			"gwas.pval_mlog",
+			"gwas.pval_text",
+			"gwas.effect_size",
+			"gwas.95_confidence",
+			"gwas.accession"
+		]
+	},{
+		"file": "data/phewas-catalog.tsjv",
+		"ftype": "sequence_alteration",
+		"association_cols": [
+			"phewas.gene"
+		],
+		"association_data_cols": [
+			"phewas.phenotype",
+			"phewas.cases",
+			"phewas.pval",
+			"phewas.odds_ratio",
+			"phewas.gene",
+			"phewas.phecode"
+		]
+	}]
+}

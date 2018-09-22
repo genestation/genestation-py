@@ -9,40 +9,7 @@ def merge_two_dicts(x,y):
 	z.update(y)
 	return z
 
-
-'''
-print('Reading Enhancer associations', flush=True)
-enhancer_associations = {}
-next(arg.enhancer_associations)
-for line in arg.enhancer_associations:
-	line = line.rstrip().split('\t')
-	if len(line) < 6:
-		continue #TODO fail
-	enhancer = line[0]
-	start = line[1]
-	end = line[2]
-	gene = line[3]
-	rsqr = line[4]
-	fdr = line[5]
-	if gene not in enhancer_associations:
-		enhancer_associations[gene] = []
-	enhancer_associations[gene].append({
-		'name': enhancer,
-		'ftype': 'enhancer',
-		'start': int(start),
-		'end': int(end),
-		'_locrange': {
-			'gte': int(start),
-			'lt': int(end),
-		},
-		'data': {
-			'fantom5': {
-				'rsqr': rsqr,
-				'fdr': fdr,
-			}
-		}
-	})
-'''
+# TODO handle numeric inference problems
 
 def load_tsjv(es, genome, filename, descriptor_in):
 	dirname = os.path.dirname(filename)
@@ -134,10 +101,17 @@ def read_tsjv(genome, tsjv, tsjv_file):
 				}
 			if region_idx is not None:
 				docs[name]['region'] = json.loads(line[region_idx])
-			if start_idx is not None:
-				docs[name]['start'] = json.loads(line[start_idx])
-			if end_idx is not None:
-				docs[name]['end'] = json.loads(line[end_idx])
+			if start_idx is not None and end_idx is not None:
+				loc = {
+					'start': json.loads(line[start_idx]),
+					'end': json.loads(line[end_idx]),
+				}
+				docs[name]['start'] = loc['start']
+				docs[name]['end'] = loc['end']
+				docs[name]['locrange'] = {
+					'gte': loc['start'],
+					'lt': loc['end'],
+				}
 			# Data fields TODO nesting
 			if data_idxs is not None:
 				if 'data' not in docs:
@@ -169,11 +143,15 @@ def read_tsjv(genome, tsjv, tsjv_file):
 				docs[name]['association'].append(association)
 	for name, doc in docs.items():
 		script = ''
+		params = {}
 		if 'data' in doc:
 			for key in doc['data']:
-				script += 'ctx._source.data.{0} = {1};'.format(key, json.dumps(doc['data'][key]))
+				datakey = 'data.{0}'.format(key)
+				script += 'ctx._source.data.{0} = params.{1};'.format(key,datakey)
+				params[datakey] = json.dumps(doc['data'][key])
 		if 'association' in doc:
-			script += 'ctx._source.association.add({0});'.format(json.dumps(doc['association']))
+			script += 'ctx._source.association.add(params.association);'
+			params['association'] = json.dumps(doc['association'])
 		yield {
 			'_op_type': 'update',
 			'_index': index_format.format(doc['ftype']),

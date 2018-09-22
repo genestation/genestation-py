@@ -20,6 +20,7 @@ FeatureIndexTemplate = {
 				"data": {"dynamic": True, "type": "object"},
 			}},
 			"association": { "properties": {
+				"type": "nested",
 				"genome": {"type": "keyword"},
 				"ftype": {"type": "keyword"},
 				"name": {"type": "keyword"},

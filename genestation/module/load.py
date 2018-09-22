@@ -2,6 +2,7 @@ import sys
 import json
 from module.file.gff import load_gff
 from module.file.vcf import load_vcf
+from module.file.tsjv import load_tsjv
 
 def main(arg, es):
 	for handle in arg.descriptor:
@@ -43,4 +44,6 @@ def load(es, filename, descriptor):
 		load_gff(es, genome, filename, descriptor["gff"])
 	if "vcf" in descriptor:
 		load_vcf(es, genome, filename, descriptor["vcf"])
+	if "tsjv" in descriptor:
+		load_tsjv(es, genome, filename, descriptor["tsjv"])
 

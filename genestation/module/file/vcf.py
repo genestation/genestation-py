@@ -37,12 +37,11 @@ def load_vcf(es, genome, filename, descriptor_in):
 		for vcf_name in vcf["file"]:
 			vcf_path = os.path.join(dirname,vcf_name)
 			try:
-				print("Reading {0}".format(vcf_path))
-				print('Loading features', flush=True)
+				print("Reading {0}".format(vcf_path), flush=True)
 				response = bulk(es, read_vcf(genome, vcf, vcf_path))
 				print(response)
 			except IOError:
-				print('{0}: cannot find GFF "{1}"'.format(filename,vcf_path), file=sys.stderr)
+				print('{0}: cannot find VCF "{1}"'.format(filename,vcf_path), file=sys.stderr)
 
 def read_vcf(genome, vcf, vcf_path):
 	index_format = 'feature.{0}'.format(genome) + '.{0}'

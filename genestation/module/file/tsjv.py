@@ -54,8 +54,8 @@ def load_tsjv(es, genome, filename, descriptor_in):
 					print(response)
 			except IOError:
 				print('{0}: cannot find TSJV "{1}"'.format(filename,tsjv_path), file=sys.stderr)
-			except TsjvException:
-				print('{0}: TSJV syntax error "{1}"'.format(filename,tsjv_path), file=sys.stderr)
+			except TsjvException as e:
+				print('{0}: TSJV syntax error in "{1}": {2}'.format(filename,tsjv_path, str(e)), file=sys.stderr)
 
 class TsjvException(Exception):
     pass
@@ -66,11 +66,11 @@ def read_tsjv(genome, tsjv, tsjv_file):
 	header_line = next(tsjv_file)
 	header = [json.loads(item) for item in header_line.strip().split('\t')]
 	if len([item for item in header if not isinstance(item,str)]) > 0:
-		raise TsjvException('Malformed TSJV header')
+		raise TsjvException('Malformed TSJV header: non-string value')
 	try:
 		feature_idx = header.index(tsjv['feature_col'])
 	except ValueError:
-		raise TsjvException('feature_col `{0}` TSJV header'.format(tsjv['feature_col']))
+		raise TsjvException('feature_col `{0}`  missing from TSJV header'.format(tsjv['feature_col']))
 	start_idx = header.index(tsjv['start_col']) if tsjv['start_col'] is not None and tsjv['start_col'] in header else None
 	end_idx = header.index(tsjv['end_col']) if tsjv['end_col'] is not None and tsjv['end_col'] in header else None
 	region_idx = header.index(tsjv['region_col']) if tsjv['region_col'] is not None and tsjv['region_col'] in header else None
@@ -84,12 +84,18 @@ def read_tsjv(genome, tsjv, tsjv_file):
 	association_data_idxs = [header.index(col) for col in association_data_cols if col in header] if association_data_cols is not None else None
 	# Read body
 	docs = {}
+	lineno = 1
 	for line in tsjv_file:
+		lineno+=1
 		line = line.strip().split('\t')
 		if len(line) != len(header):
-			raise TsjvException('Inconsistent TSJV column arity')
+			raise TsjvException('Inconsistent TSJV column arity in line {0}'.format(lineno))
+		try:
+			line = [json.loads(item) for item in line]
+		except ValueError:
+			raise TsjvException('JSON decode error in line {0}'.format(lineno))
 		# Base document
-		names = json.loads(line[feature_idx])
+		names = line[feature_idx]
 		if type(names) is not list:
 			names = [names]
 		for name in names:
@@ -100,11 +106,11 @@ def read_tsjv(genome, tsjv, tsjv_file):
 					'name': name,
 				}
 			if region_idx is not None:
-				docs[name]['region'] = json.loads(line[region_idx])
+				docs[name]['region'] = line[region_idx]
 			if start_idx is not None and end_idx is not None:
 				loc = {
-					'start': json.loads(line[start_idx]),
-					'end': json.loads(line[end_idx]),
+					'start': line[start_idx],
+					'end': line[end_idx],
 				}
 				docs[name]['start'] = loc['start']
 				docs[name]['end'] = loc['end']
@@ -114,31 +120,31 @@ def read_tsjv(genome, tsjv, tsjv_file):
 				}
 			# Data fields TODO nesting
 			if data_idxs is not None:
-				if 'data' not in docs:
-					docs['data'] = {}
+				if 'data' not in docs[name]:
+					docs[name]['data'] = {}
 				for idx, data_idx in enumerate(data_idxs):
 					colname = data_cols[idx]
-					docs[name]['data'][colname] = json.loads(line[data_idx])
+					docs[name]['data'][colname] = line[data_idx]
 					# WITH nesting
 					#if colname not in docs[name]['data']:
 					#	docs[name]['data'][colname] = []
-					#docs[name]['data'][colname].append(json.loads(line[data_idx]))
+					#docs[name]['data'][colname].append(line[data_idx])
 			# Association fields TODO nesting
 			if association_idxs is not None and len(association_idxs) > 0:
 				if 'association' not in docs[name]:
 					docs[name]['association'] = []
-				association_names = [json.loads(line[idx]) for idx in association_idxs]
-				#association_names = map(lambda names: names if type(names) is list else [names], [json.loads(line[idx]) for idx in association_idxs])
+				association_names = [line[idx] for idx in association_idxs]
+				#association_names = map(lambda names: names if type(names) is list else [names], [line[idx] for idx in association_idxs])
 				#association_names = list(set([name for names in association_names for name in names]))
 				association = {
-					'genome': json.loads(line[association_genome_idx]) if association_genome_idx is not None else tsjv['association_genome'],
-					'ftype': json.loads(line[association_ftype_idx]) if association_ftype_idx is not None else tsjv['association_ftype'],
+					'genome': line[association_genome_idx] if association_genome_idx is not None else tsjv['association_genome'],
+					'ftype': line[association_ftype_idx] if association_ftype_idx is not None else tsjv['association_ftype'],
 					'name': association_names
 				}
 				association_data = {}
 				for idx, association_data_idx in enumerate(association_data_idxs):
 					colname = association_data_cols[idx]
-					association_data[colname] = json.loads(line[association_data_idx])
+					association_data[colname] = line[association_data_idx]
 				association['data'] = association_data
 				docs[name]['association'].append(association)
 	print('Loading features', flush=True)

@@ -151,7 +151,7 @@ def read_tsjv(genome, tsjv, tsjv_file):
 	script = ''
 	if data_cols is not None:
 		for key in data_cols:
-			datakey = 'data.{0}'.format(key)
+			datakey = 'data___{0}'.format(key.replace('.','___'))
 			script += 'ctx._source.data.{0} = params.{1};'.format(key,datakey)
 	if association_idxs is not None and len(association_idxs) > 0:
 		script += "if(ctx._source.association != null) { ctx._source.association.add(params.association) } else { ctx._source.association = params.association }"
@@ -159,7 +159,7 @@ def read_tsjv(genome, tsjv, tsjv_file):
 		params = {}
 		if 'data' in doc:
 			for key in doc['data']:
-				datakey = 'data.{0}'.format(key)
+				datakey = 'data___{0}'.format(key.replace('.','___'))
 				params[datakey] = doc['data'][key]
 		if 'association' in doc:
 			params['association'] = doc['association']

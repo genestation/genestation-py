@@ -1,0 +1,30 @@
+{
+	"genus": "Homo",
+	"species": "sapiens",
+	"version": "GRch38.p12",
+	"tsjv": {
+		"file": "data/gene_data.tsjv",
+		"ftype": "gene",
+		"data_cols": [
+			"description",
+			"summary",
+			"chromosome_band",
+			"age",
+			"dn",
+			"ds",
+			"dnds",
+			"dn_paml",
+			"ds_paml",
+			"dnds_paml",
+			"fst",
+			"fst_5kb",
+			"go",
+			"omim",
+			"enzyme",
+			"tissue_enrichment",
+			"protein_atlas",
+			"expression",
+			"methylation"
+		]
+	}
+}

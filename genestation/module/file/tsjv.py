@@ -149,18 +149,18 @@ def read_tsjv(genome, tsjv, tsjv_file):
 				docs[name]['association'].append(association)
 	print('Loading features', flush=True)
 	script = ''
+	datakey = {}
 	if data_cols is not None:
-		for key in data_cols:
-			datakey = 'data___{0}'.format(key.replace('.','___'))
-			script += 'ctx._source.data.{0} = params.{1};'.format(key,datakey)
+		for idx, key in enumerate(data_cols):
+			datakey[key] = 'data_{0}'.format(idx)
+			script += 'ctx._source.data.{0} = params.{1};'.format(key,datakey[key])
 	if association_idxs is not None and len(association_idxs) > 0:
 		script += "if(ctx._source.association != null) { ctx._source.association.add(params.association) } else { ctx._source.association = params.association }"
 	for name, doc in docs.items():
 		params = {}
 		if 'data' in doc:
 			for key in doc['data']:
-				datakey = 'data___{0}'.format(key.replace('.','___'))
-				params[datakey] = doc['data'][key]
+				params[datakey[key]] = doc['data'][key]
 		if 'association' in doc:
 			params['association'] = doc['association']
 		yield {

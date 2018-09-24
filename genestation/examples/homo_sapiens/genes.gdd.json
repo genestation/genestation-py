@@ -5,7 +5,7 @@
 	"gff": {
 		"file": "data/ref_GRCh38_top_level.gff3",
 		"data_attr": {
-			"description": "description",
+			"description": "description"
 		},
 		"seqid_alias": {
 			"NC_000001.11": "1",
